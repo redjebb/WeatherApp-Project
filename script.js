@@ -1,42 +1,42 @@
 const GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search";
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 
-const cityInput = document.getElementById("city-input");
-const searchBtn = document.getElementById("search-btn");
+const ui = {
+    input: document.getElementById("city-input"),
+    searchBtn: document.getElementById("search-btn"),
 
-const locationElement = document.getElementById("location");
-const temperatureElement = document.getElementById("temperature");
+    weatherCard: document.getElementById("weather-info"),
+    location: document.getElementById("location"),
+    temperature: document.getElementById("temperature"),
+    icon: document.getElementById("weather-icon"),
+    description: document.getElementById("description"),
 
-const weatherIconElement = document.getElementById("weather-icon");
-const descriptionElement = document.getElementById("description");
+    humidity: document.getElementById("humidity"),
+    windSpeed: document.getElementById("wind-speed"),
 
-const humidityElement = document.getElementById("humidity");
-const windSpeedElement = document.getElementById("wind-speed");
+    error: document.getElementById("error-message"),
+    loading: document.getElementById("loading-spinner")
+};
 
-const errorMessageElement = document.getElementById("error-message");
-const weatherInfoElement = document.getElementById("weather-info");
+ui.searchBtn.addEventListener("click", handleSearch);
 
-const loadingElement = document.getElementById("loading-spinner");
-
-searchBtn.addEventListener("click", handleSearch);
-
-cityInput.addEventListener("keydown", (event) => {
+ui.input.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
         handleSearch();
     }
 });
 
 async function handleSearch() {
-    const cityName = cityInput.value.trim();
+    const cityName = ui.input.value.trim();
 
     if (!cityName) {
         return;
     }
 
     try {
-        errorMessageElement.classList.add("hidden");
-        weatherInfoElement.classList.add("hidden");
-        loadingElement.classList.remove("hidden");
+        ui.error.classList.add("hidden");
+ui.weatherCard.classList.add("hidden");
+ui.loading.classList.remove("hidden");
 
         const coords = await getCoordinates(cityName);
 
@@ -44,15 +44,14 @@ async function handleSearch() {
 
         updateUI(weatherData, coords.name);
 
-        loadingElement.classList.add("hidden");
-        weatherInfoElement.classList.remove("hidden");
+        ui.loading.classList.add("hidden");
+        ui.weatherCard.classList.remove("hidden");
     } catch (error) {
-        console.error(error);
 
-        loadingElement.classList.add("hidden");
+       ui.loading.classList.add("hidden");
 
-        errorMessageElement.classList.remove("hidden");
-        weatherInfoElement.classList.add("hidden");
+        ui.error.classList.remove("hidden");
+ui.weatherCard.classList.add("hidden");
     }
 }
 
@@ -87,13 +86,13 @@ async function getWeatherData(lat, lon) {
 function updateUI(data, cityName) {
     const current = data.current;
 
-    locationElement.textContent = cityName;
+   ui.location.textContent = cityName;
 
-    temperatureElement.textContent = Math.round(current.temperature_2m);
+    ui.temperature.textContent = Math.round(current.temperature_2m);
 
-    humidityElement.textContent = `${current.relative_humidity_2m}%`;
+    ui.humidity.textContent = `${current.relative_humidity_2m}%`;
 
-    windSpeedElement.textContent = `${current.wind_speed_10m} km/h`;
+    ui.windSpeed.textContent = `${current.wind_speed_10m} km/h`;
 
     const weatherMapping = {
         0: { text: "Clear Sky", iconClass: "fa-sun" },
@@ -119,9 +118,9 @@ function updateUI(data, cityName) {
         iconClass: "fa-question"
     };
 
-    descriptionElement.textContent = match.text;
+    ui.description.textContent = match.text;
 
-    weatherIconElement.className = `fa-solid fa-5x ${match.iconClass}`;
+    ui.icon.className = `fa-solid fa-5x ${match.iconClass}`;
 
-    cityInput.value = "";
+    ui.input.value = "";
 }
