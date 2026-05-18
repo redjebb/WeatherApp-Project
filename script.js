@@ -23,3 +23,43 @@ cityInput.addEventListener("keydown", (event) => {
         handleSearch();
     }
 });
+
+async function handleSearch() {
+    const cityName = cityInput.value.trim();
+
+    if (!cityName) {
+        return;
+    }
+
+    try {
+        const coords = await getCoordinates(cityName);
+
+        console.log(coords);
+
+        errorMessageElement.classList.add("hidden");
+        weatherInfoElement.classList.remove("hidden");
+    } catch (error) {
+        console.error(error);
+
+        errorMessageElement.classList.remove("hidden");
+        weatherInfoElement.classList.add("hidden");
+    }
+}
+
+async function getCoordinates(city) {
+    const url = `${GEOCODING_URL}?name=${encodeURIComponent(city)}&count=1&language=en`;
+
+    const response = await fetch(url);
+
+    const data = await response.json();
+
+    if (!data.results || data.results.length === 0) {
+        throw new Error("City not found");
+    }
+
+    return {
+        lat: data.results[0].latitude,
+        lon: data.results[0].longitude,
+        name: data.results[0].name
+    };
+}
