@@ -1,13 +1,19 @@
 const GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search";
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 
+let currentTempCelsius = null; 
+let currentWindKmH = null;
+let isCelsius = true;  
+
 const ui = {
     input: document.getElementById("city-input"),
     searchBtn: document.getElementById("search-btn"),
+    unitToggle: document.getElementById("unit-toggle"),
 
     weatherCard: document.getElementById("weather-info"),
     location: document.getElementById("location"),
     temperature: document.getElementById("temperature"),
+    unitDisplay: document.getElementById("unit-display"),
     icon: document.getElementById("weather-icon"),
     description: document.getElementById("description"),
 
@@ -16,13 +22,27 @@ const ui = {
 
     error: document.getElementById("error-message"),
     loading: document.getElementById("loading-spinner")
-};
+};        
 
 ui.searchBtn.addEventListener("click", handleSearch);
 
 ui.input.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-        handleSearch();
+    if (event.key === "Enter") handleSearch();
+});
+
+ui.unitToggle.addEventListener("click", () => {
+    isCelsius = !isCelsius;
+    
+    ui.unitToggle.textContent = isCelsius ? "°F" : "°C";
+    
+    if (currentTempCelsius !== null) {
+        const displayTemp = isCelsius ? currentTempCelsius : (currentTempCelsius * 9 / 5) + 32;
+        ui.temperature.textContent = Math.round(displayTemp);
+        ui.unitDisplay.textContent = isCelsius ? "°C" : "°F";
+        
+        const displayWind = isCelsius ? currentWindKmH : currentWindKmH * 0.621371;
+        const windUnit = isCelsius ? "km/h" : "mph";
+        ui.windSpeed.textContent = `${Math.round(displayWind)} ${windUnit}`;
     }
 });
 
@@ -75,12 +95,8 @@ async function getCoordinates(city) {
 
 async function getWeatherData(lat, lon) {
     const url = `${FORECAST_URL}?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m`;
-
     const response = await fetch(url);
-
-    const data = await response.json();
-
-    return data;
+    return await response.json();
 }
 
 const WEATHER_MAPPING = {
@@ -107,19 +123,28 @@ function updateUI(data, cityName) {
 
    ui.location.textContent = cityName;
 
-    ui.temperature.textContent = Math.round(current.temperature_2m);
+    currentTempCelsius = current.temperature_2m;
+    currentWindKmH = current.wind_speed_10m;
 
+    let displayTemp = currentTempCelsius;
+    let displayWind = currentWindKmH;
+    let tempUnit = "°C";
+    let windUnit = "km/h";
+
+    if (!isCelsius) {
+        displayTemp = (currentTempCelsius * 9 / 5) + 32;
+        displayWind = currentWindKmH * 0.621371;
+        tempUnit = "°F";
+        windUnit = "mph";
+    }
+
+    ui.temperature.textContent = Math.round(displayTemp);
+    ui.unitDisplay.textContent = tempUnit;
     ui.humidity.textContent = `${current.relative_humidity_2m}%`;
+    ui.windSpeed.textContent = `${Math.round(displayWind)} ${windUnit}`;
 
-    ui.windSpeed.textContent = `${current.wind_speed_10m} km/h`;
-
-const match = WEATHER_MAPPING[current.weather_code] || {
-    text: "Unknown",
-    iconClass: "fa-question"
-};
-
+const match = WEATHER_MAPPING[current.weather_code] || { text: "Unknown", iconClass: "fa-question" };
     ui.description.textContent = match.text;
-
     ui.icon.className = `fa-solid fa-5x ${match.iconClass}`;
 
     ui.input.value = "";
