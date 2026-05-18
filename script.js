@@ -34,7 +34,9 @@ async function handleSearch() {
     try {
         const coords = await getCoordinates(cityName);
 
-        console.log(coords);
+        const weatherData = await getWeatherData(coords.lat, coords.lon);
+
+        updateUI(weatherData, coords.name);
 
         errorMessageElement.classList.add("hidden");
         weatherInfoElement.classList.remove("hidden");
@@ -62,4 +64,56 @@ async function getCoordinates(city) {
         lon: data.results[0].longitude,
         name: data.results[0].name
     };
+}
+
+async function getWeatherData(lat, lon) {
+    const url = `${FORECAST_URL}?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m`;
+
+    const response = await fetch(url);
+
+    const data = await response.json();
+
+    return data;
+}
+
+function updateUI(data, cityName) {
+    const current = data.current;
+
+    locationElement.textContent = cityName;
+
+    temperatureElement.textContent = Math.round(current.temperature_2m);
+
+    humidityElement.textContent = `${current.relative_humidity_2m}%`;
+
+    windSpeedElement.textContent = `${current.wind_speed_10m} km/h`;
+
+    const weatherMapping = {
+        0: { text: "Clear Sky", iconClass: "fa-sun" },
+        1: { text: "Mainly Clear", iconClass: "fa-cloud-sun" },
+        2: { text: "Partly Cloudy", iconClass: "fa-cloud-sun" },
+        3: { text: "Overcast", iconClass: "fa-cloud" },
+        45: { text: "Fog", iconClass: "fa-smog" },
+        48: { text: "Depositing Rime Fog", iconClass: "fa-smog" },
+        51: { text: "Light Drizzle", iconClass: "fa-cloud-rain" },
+        53: { text: "Moderate Drizzle", iconClass: "fa-cloud-rain" },
+        55: { text: "Dense Drizzle", iconClass: "fa-cloud-rain" },
+        61: { text: "Slight Rain", iconClass: "fa-cloud-showers-heavy" },
+        63: { text: "Moderate Rain", iconClass: "fa-cloud-showers-heavy" },
+        65: { text: "Heavy Rain", iconClass: "fa-cloud-showers-heavy" },
+        71: { text: "Slight Snow", iconClass: "fa-snowflake" },
+        73: { text: "Moderate Snow", iconClass: "fa-snowflake" },
+        75: { text: "Heavy Snow", iconClass: "fa-snowflake" },
+        95: { text: "Thunderstorm", iconClass: "fa-bolt" }
+    };
+
+    const match = weatherMapping[current.weather_code] || {
+        text: "Unknown",
+        iconClass: "fa-question"
+    };
+
+    descriptionElement.textContent = match.text;
+
+    weatherIconElement.className = `fa-solid fa-5x ${match.iconClass}`;
+
+    cityInput.value = "";
 }
