@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Weather App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="weather-container">
+        <header class="search-box">
+            <input type="text" id="city-input" placeholder="Enter city name..." autocomplete="off">
+            <button id="search-btn">Search</button>
+        </header>
+
+        <p id="error-message" class="hidden">City not found. Please try again.</p>
+
+        <main id="weather-info" class="weather-info">
+            <div class="main-info">
+                <h1 id="location">Paris</h1>
+                <div class="temp-container">
+                    <span id="temperature">22</span><span class="unit">°C</span>
+                </div>
+                <i id="weather-icon" class="fa-solid fa-cloud-sun fa-5x"></i>
+                <p id="description">Partly Cloudy</p>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-card">
+                    <span class="label">Humidity</span>
+                    <span id="humidity">64%</span>
+                </div>
+                <div class="detail-card">
+                    <span class="label">Wind</span>
+                    <span id="wind-speed">12 km/h</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
