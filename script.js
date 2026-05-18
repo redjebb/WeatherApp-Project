@@ -16,6 +16,8 @@ const windSpeedElement = document.getElementById("wind-speed");
 const errorMessageElement = document.getElementById("error-message");
 const weatherInfoElement = document.getElementById("weather-info");
 
+const loadingElement = document.getElementById("loading-spinner");
+
 searchBtn.addEventListener("click", handleSearch);
 
 cityInput.addEventListener("keydown", (event) => {
@@ -32,16 +34,22 @@ async function handleSearch() {
     }
 
     try {
+        errorMessageElement.classList.add("hidden");
+        weatherInfoElement.classList.add("hidden");
+        loadingElement.classList.remove("hidden");
+
         const coords = await getCoordinates(cityName);
 
         const weatherData = await getWeatherData(coords.lat, coords.lon);
 
         updateUI(weatherData, coords.name);
 
-        errorMessageElement.classList.add("hidden");
+        loadingElement.classList.add("hidden");
         weatherInfoElement.classList.remove("hidden");
     } catch (error) {
         console.error(error);
+
+        loadingElement.classList.add("hidden");
 
         errorMessageElement.classList.remove("hidden");
         weatherInfoElement.classList.add("hidden");
