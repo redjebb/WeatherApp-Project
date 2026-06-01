@@ -1,0 +1,65 @@
+// 1. Импортираме справочника за кодовете от модула за времето
+import { WEATHER_MAPPING } from "./weather-codes.js";
+
+// 2. Експортираме обекта с DOM елементите, за да може app.js да ги чете и контролира
+export const ui = {
+    form: document.getElementById("search-form"),
+    input: document.getElementById("city-input"),
+    unitToggle: document.getElementById("unit-toggle"),
+    historyContainer: document.getElementById("history-container"),
+
+    weatherCard: document.getElementById("weather-info"),
+    location: document.getElementById("location"),
+    temperature: document.getElementById("temperature"),
+    unitDisplay: document.getElementById("unit-display"),
+    icon: document.getElementById("weather-icon"),
+    description: document.getElementById("description"),
+
+    humidity: document.getElementById("humidity"),
+    windSpeed: document.getElementById("wind-speed"),
+
+    error: document.getElementById("error-message"),
+    loading: document.getElementById("loading-spinner")
+};
+
+/**
+ * Показва получените метеорологични данни в страницата
+ * @param {object} data - Необработените данни от API-то
+ * @param {string} cityName - Истинското име на града от геокодирането
+ * @param {boolean} isCelsius - Текущото състояние на мерната единица (идва от състоянието в app.js)
+ */
+export function updateUI(data, cityName, isCelsius) {
+    const current = data.current;
+
+    // Показване на името на града
+    ui.location.textContent = cityName;
+
+    // Изчисляване на локалните променливи за показване
+    let displayTemp = current.temperature_2m;
+    let displayWind = current.wind_speed_10m;
+    let tempUnit = "°C";
+    let windUnit = "km/h";
+
+    // Ако в момента е избран Фаренхайт, пресмятаме стойностите за екрана
+    if (!isCelsius) {
+        displayTemp = (current.temperature_2m * 9 / 5) + 32;
+        displayWind = current.wind_speed_10m * 0.621371;
+        tempUnit = "°F";
+        windUnit = "mph";
+    }
+
+    // Обновяване на данните в DOM
+    ui.temperature.textContent = Math.round(displayTemp);
+    ui.unitDisplay.textContent = tempUnit;
+    ui.humidity.textContent = `${current.relative_humidity_2m}%`;
+    ui.windSpeed.textContent = `${Math.round(displayWind)} ${windUnit}`;
+
+    // Търсене на описание и икона според weather кода от импортирания справочник
+    const match = WEATHER_MAPPING[current.weather_code] || {
+        text: "Unknown",
+        iconClass: "fa-question"
+    };
+
+    ui.description.textContent = match.text;
+    ui.icon.className = `fa-solid fa-5x ${match.iconClass}`;
+}
