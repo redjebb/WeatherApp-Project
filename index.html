@@ -1,47 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Основни настройки на страницата -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Заглавие на страницата -->
     <title>Minimal Weather App</title>
+
+    <!-- Font Awesome библиотека за иконите -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Външен CSS файл -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!-- Основен контейнер на приложението -->
     <div class="weather-container">
+
+        <!-- Поле за търсене и бутони -->
         <header class="search-box">
+
+            <!-- Поле за въвеждане на град -->
             <input type="text" id="city-input" placeholder="Enter city name..." autocomplete="off">
+
+            <!-- Бутон за търсене -->
             <button id="search-btn">Search</button>
+
+            <!-- Бутон за превключване между Целзий и Фаренхайт -->
             <button id="unit-toggle" class="toggle-btn">°F</button>
         </header>
 
-        <p id="error-message" class="hidden">City not found. Please try again.</p>
-        <p id="loading-spinner" class="hidden">Fetching local conditions...</p>
+        <!-- Съобщение при грешка -->
+        <p id="error-message" class="hidden">
+            City not found. Please try again.
+        </p>
 
+        <!-- Съобщение при зареждане -->
+        <p id="loading-spinner" class="hidden">
+            Fetching local conditions...
+        </p>
+
+        <!-- Основна секция с информация за времето -->
         <main id="weather-info" class="weather-info">
+
+            <!-- Основни данни за времето -->
             <div class="main-info">
+
+                <!-- Име на града -->
                 <h1 id="location">Paris</h1>
+
+                <!-- Температура и мерна единица -->
                 <div class="temp-container">
-                    <span id="temperature">22</span><span class="unit" id="unit-display">°C</span>
+                    <span id="temperature">22</span>
+                    <span class="unit" id="unit-display">°C</span>
                 </div>
+
+                <!-- Иконка според времето -->
                 <i id="weather-icon" class="fa-solid fa-cloud-sun fa-5x"></i>
+
+                <!-- Текстово описание на времето -->
                 <p id="description">Partly Cloudy</p>
             </div>
 
+            <!-- Допълнителни метеорологични данни -->
             <div class="details-grid">
+
+                <!-- Влажност -->
                 <div class="detail-card">
                     <span class="label">Humidity</span>
                     <span id="humidity">64%</span>
                 </div>
+
+                <!-- Скорост на вятъра -->
                 <div class="detail-card">
                     <span class="label">Wind</span>
                     <span id="wind-speed">12 km/h</span>
                 </div>
+
             </div>
         </main>
     </div>
 
+    <!-- Основен JavaScript файл -->
     <script src="script.js"></script>
+
 </body>
 </html>
