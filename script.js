@@ -16,10 +16,9 @@ let currentWindKmH = null;
 let isCelsius = true;
 
 // Всички DOM елементи са събрани в един обект
-// Така кодът е по-подреден и лесен за поддръжка
 const ui = {
+    form: document.getElementById("search-form"),
     input: document.getElementById("city-input"),
-    searchBtn: document.getElementById("search-btn"),
     unitToggle: document.getElementById("unit-toggle"),
 
     weatherCard: document.getElementById("weather-info"),
@@ -36,12 +35,10 @@ const ui = {
     loading: document.getElementById("loading-spinner")
 };
 
-// Търсене при натискане на бутона
-ui.searchBtn.addEventListener("click", handleSearch);
-
-// Търсене при натискане на Enter
-ui.input.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") handleSearch();
+// Слушател за формата - при изпращане се стартира търсенето
+ui.form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    handleSearch();
 });
 
 // Превключване между °C и °F
@@ -113,6 +110,7 @@ async function handleSearch() {
         ui.weatherCard.classList.remove("hidden");
 
     } catch (error) {
+        console.error(error);
 
         // При грешка показваме съобщение
         ui.loading.classList.add("hidden");

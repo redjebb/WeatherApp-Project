@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <!-- Основни настройки на страницата -->
     <meta charset="UTF-8">
@@ -14,23 +15,24 @@
     <!-- Външен CSS файл -->
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
     <!-- Основен контейнер на приложението -->
     <div class="weather-container">
 
         <!-- Поле за търсене и бутони -->
-        <header class="search-box">
-
-            <!-- Поле за въвеждане на град -->
+        <form id="search-form" class="search-box">
             <input type="text" id="city-input" placeholder="Enter city name..." autocomplete="off">
 
-            <!-- Бутон за търсене -->
-            <button id="search-btn">Search</button>
+            <button type="submit" id="search-btn">
+                Search
+            </button>
 
-            <!-- Бутон за превключване между Целзий и Фаренхайт -->
-            <button id="unit-toggle" class="toggle-btn">°F</button>
-        </header>
+            <button type="button" id="unit-toggle" class="toggle-btn">
+                °F
+            </button>
+        </form>
 
         <!-- Съобщение при грешка -->
         <p id="error-message" class="hidden">
@@ -87,4 +89,5 @@
     <script src="script.js"></script>
 
 </body>
+
 </html>
