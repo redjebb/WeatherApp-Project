@@ -1,6 +1,26 @@
 // URL за търсене на координати по име на град
 const GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search";
 
+// Справочник за weather кодовете на Open-Meteo
+const WEATHER_MAPPING = {
+    0: { text: "Clear Sky", iconClass: "fa-sun" },
+    1: { text: "Mainly Clear", iconClass: "fa-cloud-sun" },
+    2: { text: "Partly Cloudy", iconClass: "fa-cloud-sun" },
+    3: { text: "Overcast", iconClass: "fa-cloud" },
+    45: { text: "Fog", iconClass: "fa-smog" },
+    48: { text: "Depositing Rime Fog", iconClass: "fa-smog" },
+    51: { text: "Light Drizzle", iconClass: "fa-cloud-rain" },
+    53: { text: "Moderate Drizzle", iconClass: "fa-cloud-rain" },
+    55: { text: "Dense Drizzle", iconClass: "fa-cloud-rain" },
+    61: { text: "Slight Rain", iconClass: "fa-cloud-showers-heavy" },
+    63: { text: "Moderate Rain", iconClass: "fa-cloud-showers-heavy" },
+    65: { text: "Heavy Rain", iconClass: "fa-cloud-showers-heavy" },
+    71: { text: "Slight Snow", iconClass: "fa-snowflake" },
+    73: { text: "Moderate Snow", iconClass: "fa-snowflake" },
+    75: { text: "Heavy Snow", iconClass: "fa-snowflake" },
+    95: { text: "Thunderstorm", iconClass: "fa-bolt" }
+};
+
 // URL за взимане на метеорологични данни
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 
@@ -15,11 +35,14 @@ let currentWindKmH = null;
 // true = Целзий, false = Фаренхайт
 let isCelsius = true;
 
+let searchHistory = [];
+
 // Всички DOM елементи са събрани в един обект
 const ui = {
     form: document.getElementById("search-form"),
     input: document.getElementById("city-input"),
     unitToggle: document.getElementById("unit-toggle"),
+    historyContainer: document.getElementById("history-container"),
 
     weatherCard: document.getElementById("weather-info"),
     location: document.getElementById("location"),
@@ -77,14 +100,19 @@ ui.unitToggle.addEventListener("click", () => {
 
 /**
  * Стартира търсене на времето за въведения град
+ * @param {string|null} forcedCityName - Име на град при клик от историята
  */
-async function handleSearch() {
+async function handleSearch(forcedCityName = null) {
+    // Четем от параметъра, ако е подаден, иначе вземаме стойността от входното поле
+    const cityName = forcedCityName ? forcedCityName.trim() : ui.input.value.trim();
 
-    const cityName = ui.input.value.trim();
-
-    // Ако няма въведен град, прекратяваме функцията
     if (!cityName) {
         return;
+    }
+
+    // Изчистваме полето веднага само ако потребителят е писал директно в него
+    if (!forcedCityName) {
+        ui.input.value = "";
     }
 
     try {
@@ -105,6 +133,8 @@ async function handleSearch() {
 
         // Показване на данните в интерфейса
         updateUI(weatherData, coords.name);
+
+        saveCityToHistory(coords.name);
 
         ui.loading.classList.add("hidden");
         ui.weatherCard.classList.remove("hidden");
@@ -162,25 +192,81 @@ async function getWeatherData(lat, lon) {
     return await response.json();
 }
 
-// Справочник за weather кодовете на Open-Meteo
-const WEATHER_MAPPING = {
-    0: { text: "Clear Sky", iconClass: "fa-sun" },
-    1: { text: "Mainly Clear", iconClass: "fa-cloud-sun" },
-    2: { text: "Partly Cloudy", iconClass: "fa-cloud-sun" },
-    3: { text: "Overcast", iconClass: "fa-cloud" },
-    45: { text: "Fog", iconClass: "fa-smog" },
-    48: { text: "Depositing Rime Fog", iconClass: "fa-smog" },
-    51: { text: "Light Drizzle", iconClass: "fa-cloud-rain" },
-    53: { text: "Moderate Drizzle", iconClass: "fa-cloud-rain" },
-    55: { text: "Dense Drizzle", iconClass: "fa-cloud-rain" },
-    61: { text: "Slight Rain", iconClass: "fa-cloud-showers-heavy" },
-    63: { text: "Moderate Rain", iconClass: "fa-cloud-showers-heavy" },
-    65: { text: "Heavy Rain", iconClass: "fa-cloud-showers-heavy" },
-    71: { text: "Slight Snow", iconClass: "fa-snowflake" },
-    73: { text: "Moderate Snow", iconClass: "fa-snowflake" },
-    75: { text: "Heavy Snow", iconClass: "fa-snowflake" },
-    95: { text: "Thunderstorm", iconClass: "fa-bolt" }
-};
+/**
+ * Инициализира историята на търсенето при зареждане на страницата
+ */
+function initHistory() {
+    // 1. Опитваме да вземем суровия низ от localStorage
+    const storedHistory = localStorage.getItem("weatherSearchHistory");
+
+    // 2. Ако има съществуваща история, я превръщаме обратно в масив
+    if (storedHistory) {
+        searchHistory = JSON.parse(storedHistory);
+    } else {
+        // Ако няма, осигуряваме се, че масивът е празен
+        searchHistory = [];
+    }
+
+    // 3. Извикваме функцията, която ще покаже бутоните (ще я напишем в следващата стъпка)
+    renderHistoryUI();
+}
+
+/**
+ * Изчертава бутоните за история на търсенето в интерфейса
+ */
+function renderHistoryUI() {
+    // 1. Изчистваме старите бутони от контейнера, за да не се дублират
+    ui.historyContainer.innerHTML = "";
+
+    // 2. Обхождаме запазените градове в масива ни
+    searchHistory.forEach((city) => {
+        // Създаваме нов бутон елемент в паметта
+        const btn = document.createElement("button");
+        
+        // Настройваме съдържанието и стиловия му клас
+        btn.textContent = city;
+        btn.className = "history-btn";
+        btn.type = "button"; // Предотвратява случайно изпращане на форми
+
+        // 3. Закачаме клик слушател директно на този конкретен бутон
+        btn.addEventListener("click", () => {
+            handleSearch(city); // Подаваме града директно като аргумент, заобикаляйки DOM полето
+        });
+
+        // 4. Добавяме готовия бутон физически в контейнера на екрана
+        ui.historyContainer.appendChild(btn);
+    });
+}
+
+/**
+ * Добавя нов град към историята и я синхронизира с localStorage
+ * @param {string} cityName 
+ */
+function saveCityToHistory(cityName) {
+    // 1. Проверяваме дали градът вече съществува в масива (без значение от главни/малки букви)
+    const existingIndex = searchHistory.findIndex(
+        (city) => city.toLowerCase() === cityName.toLowerCase()
+    );
+
+    // 2. Ако съществува, го премахваме от текущата му позиция, за да няма дублиране
+    if (existingIndex !== -1) {
+        searchHistory.splice(existingIndex, 1);
+    }
+
+    // 3. Добавяме новия/актуализирания град в самото начало на масива
+    searchHistory.unshift(cityName);
+
+    // 4. Ако масивът надхвърли 5 града, премахваме най-стария елемент от края
+    if (searchHistory.length > 5) {
+        searchHistory.pop();
+    }
+
+    // 5. Превръщаме масива в низ и го записваме в диска на браузъра
+    localStorage.setItem("weatherSearchHistory", JSON.stringify(searchHistory));
+
+    // 6. Обновяваме бутоните на екрана веднага
+    renderHistoryUI();
+}
 
 /**
  * Показва получените метеорологични данни в страницата
@@ -237,6 +323,6 @@ function updateUI(data, cityName) {
     ui.icon.className =
         `fa-solid fa-5x ${match.iconClass}`;
 
-    // Изчистване на полето за търсене
-    ui.input.value = "";
 }
+
+initHistory();

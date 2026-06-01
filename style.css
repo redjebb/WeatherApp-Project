@@ -177,6 +177,31 @@ body {
     font-weight: 600;
 }
 
+.history-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.history-btn {
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-speed) ease;
+}
+
+.history-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-main);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
 #error-message {
     color: #ff6b6b; 
     background: rgba(255, 107, 107, 0.1);
