@@ -43,47 +43,47 @@
 
         <!-- Съобщение при зареждане -->
         <p id="loading-spinner" class="hidden">
-            Fetching local conditions...
+            <i class="fa-solid fa-spinner fa-spin"></i> Fetching local conditions...
         </p>
 
         <!-- Основна секция с информация за времето -->
         <main id="weather-info" class="weather-info">
 
-    <div class="main-info">
+            <div class="main-info">
 
-        <h1 id="location">--</h1>
+                <h1 id="location">--</h1>
 
-        <div class="temp-container">
-            <span id="temperature">--</span>
-            <span class="unit" id="unit-display">°C</span>
-        </div>
+                <div class="temp-container">
+                    <span id="temperature">--</span>
+                    <span class="unit" id="unit-display">°C</span>
+                </div>
 
-        <i id="weather-icon" class="fa-solid fa-cloud fa-5x"></i>
+                <i id="weather-icon" class="fa-solid fa-cloud fa-5x"></i>
 
-        <p id="description">Search for a city</p>
+                <p id="description">Search for a city</p>
 
-    </div>
+            </div>
 
-    <div class="details-grid">
+            <div class="details-grid">
 
-        <div class="detail-card">
-            <span class="label">Humidity</span>
-            <span id="humidity">--</span>
-        </div>
+                <div class="detail-card">
+                    <span class="label">Humidity</span>
+                    <span id="humidity">--</span>
+                </div>
 
-        <div class="detail-card">
-            <span class="label">Wind</span>
-            <span id="wind-speed">--</span>
-        </div>
+                <div class="detail-card">
+                    <span class="label">Wind</span>
+                    <span id="wind-speed">--</span>
+                </div>
 
-    </div>
+            </div>
 
-</main>
+        </main>
 
         <section id="forecast-container" class="forecast-grid hidden"></section>
     </div>
 
-<script type="module" src="app.js"></script>
+    <script type="module" src="app.js"></script>
 
 </body>
 

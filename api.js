@@ -40,3 +40,22 @@ export async function getWeatherData(lat, lon) {
 
     return await response.json();
 }
+
+/**
+ * Взима името на град по зададени географски координати (Reverse Geocoding)
+ * @param {number} lat 
+ * @param {number} lon 
+ * @returns {Promise<string>} Име на града
+ */
+export async function getCityNameFromCoords(lat, lon) {
+    // Използваме Open-Meteo Geocoding API, но този път търсим по координати
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&timezone=auto`;
+    
+    const reverseUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+    
+    const response = await fetch(reverseUrl);
+    const data = await response.json();
+    
+    // Връщаме името на града (напр. "Sofia") или квартала/региона като резервен вариант
+    return data.city || data.locality || "Your Location";
+}
