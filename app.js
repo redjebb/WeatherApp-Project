@@ -9,6 +9,8 @@ import { ui, updateUI } from "./ui.js";
 // ==========================================================================
 let currentTempCelsius = null;
 let currentWindKmH = null;
+let lastWeatherData = null;
+let lastCityName = null;
 let isCelsius = true;
 let searchHistory = [];
 
@@ -27,16 +29,8 @@ ui.unitToggle.addEventListener("click", () => {
     isCelsius = !isCelsius;
     ui.unitToggle.textContent = isCelsius ? "°F" : "°C";
 
-    if (currentTempCelsius !== null) {
-        // Динамично преизчисляване на температурата в паметта
-        const displayTemp = isCelsius ? currentTempCelsius : (currentTempCelsius * 9 / 5) + 32;
-        ui.temperature.textContent = Math.round(displayTemp);
-        ui.unitDisplay.textContent = isCelsius ? "°C" : "°F";
-
-        // Динамично преизчисляване на скоростта на вятъра в паметта
-        const displayWind = isCelsius ? currentWindKmH : currentWindKmH * 0.621371;
-        const windUnit = isCelsius ? "km/h" : "mph";
-        ui.windSpeed.textContent = `${Math.round(displayWind)} ${windUnit}`;
+    if (lastWeatherData && lastCityName) {
+        updateUI(lastWeatherData, lastCityName, isCelsius);
     }
 });
 
@@ -60,30 +54,31 @@ async function handleSearch(forcedCityName = null) {
     try {
         ui.error.classList.add("hidden");
         ui.weatherCard.classList.add("hidden");
+        ui.forecastContainer.classList.add("hidden");
         ui.loading.classList.remove("hidden");
 
-        // Извикваме импортираните асинхронни функции последователно
         const coords = await getCoordinates(cityName);
         const weatherData = await getWeatherData(coords.lat, coords.lon);
 
-        // Запазваме суровите стойности в локалното състояние (state) за бъдещи конвертирания
+        lastWeatherData = weatherData;
+        lastCityName = coords.name;
+
         currentTempCelsius = weatherData.current.temperature_2m;
         currentWindKmH = weatherData.current.wind_speed_10m;
 
-        // Подаваме състоянието към визуалния модул за рендиране
         updateUI(weatherData, coords.name, isCelsius);
-
-        // Записваме в историята
         saveCityToHistory(coords.name);
 
         ui.loading.classList.add("hidden");
         ui.weatherCard.classList.remove("hidden");
+        ui.forecastContainer.classList.remove("hidden"); 
 
     } catch (error) {
         console.error(error);
         ui.loading.classList.add("hidden");
         ui.error.classList.remove("hidden");
         ui.weatherCard.classList.add("hidden");
+        ui.forecastContainer.classList.add("hidden");
     }
 }
 
@@ -135,3 +130,5 @@ function saveCityToHistory(cityName) {
 
 // Стартиране на първоначалното зареждане
 initHistory();
+
+handleSearch("Paris");

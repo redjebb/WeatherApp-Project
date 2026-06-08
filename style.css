@@ -135,7 +135,7 @@ body {
 
 #weather-icon {
     margin: 20px 0;
-    filter: drop-shadow(0 4px 10px rgba(241, 196, 15, 0.2));
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
 }
 
 #description {
@@ -244,4 +244,40 @@ body {
 
 .hidden {
     display: none !important;
+}
+
+.forecast-grid {
+    width: 100%;
+    margin-top: 25px;
+
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+.forecast-card {
+    background: rgba(255, 255, 255, 0.08);
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    border-radius: 10px;
+
+    padding: 10px 6px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.forecast-card i {
+    font-size: 1.4rem;
+}
+
+.forecast-card span:last-child {
+    font-weight: 600;
+    white-space: nowrap;
 }

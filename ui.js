@@ -7,6 +7,7 @@ export const ui = {
     input: document.getElementById("city-input"),
     unitToggle: document.getElementById("unit-toggle"),
     historyContainer: document.getElementById("history-container"),
+    forecastContainer: document.getElementById("forecast-container"),
 
     weatherCard: document.getElementById("weather-info"),
     location: document.getElementById("location"),
@@ -21,6 +22,12 @@ export const ui = {
     error: document.getElementById("error-message"),
     loading: document.getElementById("loading-spinner")
 };
+
+function formatDayName(dateString) {
+    return new Date(dateString).toLocaleDateString("bg-BG", {
+        weekday: "short"
+    });
+}
 
 /**
  * Показва получените метеорологични данни в страницата
@@ -65,4 +72,43 @@ export function updateUI(data, cityName, isCelsius) {
     ui.icon.className = `fa-solid fa-5x ${match.iconClass}`;
 
     ui.icon.style.color = match.iconColor;
+
+    renderForecast(data.daily, isCelsius);
+}
+
+function renderForecast(dailyData, isCelsius) {
+    ui.forecastContainer.innerHTML = "";
+
+    for (let index = 1; index <= 5; index++) {
+        const dayName = formatDayName(dailyData.time[index]);
+
+        let maxTemp = dailyData.temperature_2m_max[index];
+        let minTemp = dailyData.temperature_2m_min[index];
+
+        if (!isCelsius) {
+            maxTemp = (maxTemp * 9 / 5) + 32;
+            minTemp = (minTemp * 9 / 5) + 32;
+        }
+
+        const weatherCode = dailyData.weather_code[index];
+
+        const match = WEATHER_MAPPING[weatherCode] || {
+            text: "Unknown",
+            iconClass: "fa-question",
+            iconColor: "#ffffff"
+        };
+
+        const card = document.createElement("div");
+        card.className = "forecast-card";
+
+        card.innerHTML = `
+            <span>${dayName}</span>
+            <i class="fa-solid ${match.iconClass}"></i>
+            <span>${Math.round(minTemp)}° / ${Math.round(maxTemp)}°</span>
+        `;
+
+        card.querySelector("i").style.color = match.iconColor;
+
+        ui.forecastContainer.appendChild(card);
+    }
 }

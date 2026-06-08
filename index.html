@@ -49,42 +49,38 @@
         <!-- Основна секция с информация за времето -->
         <main id="weather-info" class="weather-info">
 
-            <!-- Основни данни за времето -->
-            <div class="main-info">
+    <div class="main-info">
 
-                <!-- Име на града -->
-                <h1 id="location">Paris</h1>
+        <h1 id="location">--</h1>
 
-                <!-- Температура и мерна единица -->
-                <div class="temp-container">
-                    <span id="temperature">22</span>
-                    <span class="unit" id="unit-display">°C</span>
-                </div>
+        <div class="temp-container">
+            <span id="temperature">--</span>
+            <span class="unit" id="unit-display">°C</span>
+        </div>
 
-                <!-- Иконка според времето -->
-                <i id="weather-icon" class="fa-solid fa-cloud-sun fa-5x"></i>
+        <i id="weather-icon" class="fa-solid fa-cloud fa-5x"></i>
 
-                <!-- Текстово описание на времето -->
-                <p id="description">Partly Cloudy</p>
-            </div>
+        <p id="description">Search for a city</p>
 
-            <!-- Допълнителни метеорологични данни -->
-            <div class="details-grid">
+    </div>
 
-                <!-- Влажност -->
-                <div class="detail-card">
-                    <span class="label">Humidity</span>
-                    <span id="humidity">64%</span>
-                </div>
+    <div class="details-grid">
 
-                <!-- Скорост на вятъра -->
-                <div class="detail-card">
-                    <span class="label">Wind</span>
-                    <span id="wind-speed">12 km/h</span>
-                </div>
+        <div class="detail-card">
+            <span class="label">Humidity</span>
+            <span id="humidity">--</span>
+        </div>
 
-            </div>
-        </main>
+        <div class="detail-card">
+            <span class="label">Wind</span>
+            <span id="wind-speed">--</span>
+        </div>
+
+    </div>
+
+</main>
+
+        <section id="forecast-container" class="forecast-grid hidden"></section>
     </div>
 
 <script type="module" src="app.js"></script>
