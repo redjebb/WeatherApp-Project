@@ -57,9 +57,12 @@ export function updateUI(data, cityName, isCelsius) {
     // Търсене на описание и икона според weather кода от импортирания справочник
     const match = WEATHER_MAPPING[current.weather_code] || {
         text: "Unknown",
-        iconClass: "fa-question"
+        iconClass: "fa-question",
+        iconColor: "#ffffff"
     };
 
     ui.description.textContent = match.text;
     ui.icon.className = `fa-solid fa-5x ${match.iconClass}`;
+
+    ui.icon.style.color = match.iconColor;
 }

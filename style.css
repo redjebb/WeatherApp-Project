@@ -134,9 +134,8 @@ body {
 }
 
 #weather-icon {
-    color: var(--accent-color); 
     margin: 20px 0;
-    filter: drop-shadow(0 4px 10px rgba(241, 196, 15, 0.3));
+    filter: drop-shadow(0 4px 10px rgba(241, 196, 15, 0.2));
 }
 
 #description {
