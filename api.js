@@ -4,6 +4,9 @@ const GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search";
 // URL за взимане на метеорологични данни
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 
+const weatherCache = {};
+const CACHE_TTL = 10 * 60 * 1000;
+
 /**
  * Взима координатите на град чрез Open-Meteo Geocoding API
  * @param {string} city
@@ -58,4 +61,36 @@ export async function getCityNameFromCoords(lat, lon) {
     
     // Връщаме името на града (напр. "Sofia") или квартала/региона като резервен вариант
     return data.city || data.locality || "Your Location";
+}
+
+export async function getWeatherByCity(city) {
+    const cacheKey = city.toLowerCase().trim();
+    const cachedEntry = weatherCache[cacheKey];
+    const now = Date.now();
+
+    if (cachedEntry) {
+        const age = now - cachedEntry.timestamp;
+
+        if (age < CACHE_TTL) {
+            console.log(`[Cache Hit] ${city}`);
+            return cachedEntry.data;
+        }
+
+        delete weatherCache[cacheKey];
+    }
+
+    const coords = await getCoordinates(city);
+    const weatherData = await getWeatherData(coords.lat, coords.lon);
+
+    const result = {
+        coords,
+        weatherData
+    };
+
+    weatherCache[cacheKey] = {
+        data: result,
+        timestamp: now
+    };
+
+    return result;
 }

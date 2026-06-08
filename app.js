@@ -1,8 +1,8 @@
 // 1. Импортираме нужните функции от мрежовия слой (api.js)
 import {
-  getCoordinates,
   getWeatherData,
   getCityNameFromCoords,
+  getWeatherByCity,
 } from "./api.js";
 
 // 2. Импортираме UI обекта и рендериращата функция от визуалния слой (ui.js)
@@ -63,8 +63,10 @@ async function handleSearch(forcedCityName = null) {
     ui.forecastContainer.classList.add("hidden");
     ui.loading.classList.remove("hidden");
 
-    const coords = await getCoordinates(cityName);
-    const weatherData = await getWeatherData(coords.lat, coords.lon);
+    const result = await getWeatherByCity(cityName);
+
+    const coords = result.coords;
+    const weatherData = result.weatherData;
 
     lastWeatherData = weatherData;
     lastCityName = coords.name;
@@ -169,6 +171,7 @@ function requestUserLocation() {
         currentWindKmH = weatherData.current.wind_speed_10m;
 
         updateUI(weatherData, fetchedCityName, isCelsius);
+        saveCityToHistory(fetchedCityName);
 
         ui.loading.classList.add("hidden");
         ui.weatherCard.classList.remove("hidden");
