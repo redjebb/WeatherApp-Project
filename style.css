@@ -25,7 +25,7 @@ body {
 
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
 
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -33,7 +33,7 @@ body {
 
 .weather-container {
     width: 100%;
-    max-width: 620px;
+    max-width: 500px;
     padding: 22px;
     border-radius: var(--border-radius);
 
@@ -561,4 +561,103 @@ body {
 
 .weather-icon-thunder.small .drop-3 {
     left: 21px;
+}
+
+.tooltip-card {
+    position: relative;
+}
+
+.tooltip-text {
+    position: absolute;
+    left: 50%;
+    bottom: 110%;
+    transform: translateX(-50%);
+
+    width: 220px;
+    padding: 10px;
+
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+
+    color: #ffffff;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    text-align: center;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+
+    z-index: 20;
+}
+
+.tooltip-card:hover .tooltip-text {
+    opacity: 1;
+}
+
+.temp-min {
+    color: #38bdf8;
+}
+
+.temp-max {
+    color: #ff6b6b;
+}
+
+@media (min-width: 700px) and (max-width: 1100px) {
+    body {
+        min-height: 100vh;
+        height: auto;
+        padding: 24px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .weather-container {
+        width: min(92vw, 680px);
+        max-width: 680px;
+        padding: 22px;
+    }
+
+    .search-box,
+    .history-list,
+    #error-message,
+    #loading-spinner {
+        max-width: 520px;
+    }
+
+    .main-info {
+        margin-bottom: 18px;
+    }
+
+    #location {
+        font-size: 1.9rem;
+    }
+
+    #temperature {
+        font-size: clamp(4rem, 8vw, 5rem);
+    }
+
+    .weather-icon-main {
+        height: 105px;
+        margin: 8px 0;
+    }
+
+    .details-grid {
+        max-width: 560px;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+
+    .forecast-layout {
+        max-width: 620px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hourly-grid {
+        grid-template-columns: repeat(8, 1fr);
+    }
 }

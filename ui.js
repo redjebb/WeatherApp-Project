@@ -22,6 +22,7 @@ export const ui = {
 
     uvIndex: document.getElementById("uv-index"),
 airQuality: document.getElementById("air-quality"),
+airQualityTooltip: document.getElementById("air-quality-tooltip"),
 
     error: document.getElementById("error-message"),
     loading: document.getElementById("loading-spinner")
@@ -48,6 +49,32 @@ function getAQILabel(aqi) {
     if (aqi <= 80) return "Poor";
     if (aqi <= 100) return "Very Poor";
     return "Extremely Poor";
+}
+
+function getUVColor(uvIndex) {
+    if (uvIndex < 3) return "#22c55e";
+    if (uvIndex < 6) return "#facc15";
+    if (uvIndex < 8) return "#f97316";
+    if (uvIndex < 11) return "#ef4444";
+    return "#a855f7";
+}
+
+function getAQIColor(aqi) {
+    if (aqi <= 20) return "#22c55e";
+    if (aqi <= 40) return "#84cc16";
+    if (aqi <= 60) return "#facc15";
+    if (aqi <= 80) return "#f97316";
+    if (aqi <= 100) return "#ef4444";
+    return "#a855f7";
+}
+
+function getAQIDescription(aqi) {
+    if (aqi <= 20) return "Good: Air quality is very clean and safe for outdoor activities.";
+    if (aqi <= 40) return "Fair: Air quality is acceptable for most people.";
+    if (aqi <= 60) return "Moderate: Sensitive people may feel mild discomfort.";
+    if (aqi <= 80) return "Poor: People with breathing problems should reduce outdoor activity.";
+    if (aqi <= 100) return "Very Poor: Outdoor activity should be limited.";
+    return "Extremely Poor: Avoid outdoor activity if possible.";
 }
 
 function getWeatherIconHTML(match, size = "small") {
@@ -123,9 +150,20 @@ export function updateUI(data, cityName, isCelsius, airQualityData = null) {
 
     ui.airQuality.textContent =
         `${aqiValue} (${getAQILabel(aqiValue)})`;
+
+    ui.uvIndex.style.color = getUVColor(uvValue);
+    ui.airQuality.style.color = getAQIColor(aqiValue);
+
+    ui.airQualityTooltip.textContent = getAQIDescription(aqiValue);
 } else {
     ui.uvIndex.textContent = "--";
     ui.airQuality.textContent = "--";
+
+    ui.uvIndex.style.color = "";
+    ui.airQuality.style.color = "";
+
+    ui.airQualityTooltip.textContent =
+        "Air quality shows how polluted the air is. Lower values mean cleaner air.";
 }
 
     // Търсене на описание и икона според weather кода от импортирания справочник
@@ -171,7 +209,11 @@ function renderForecast(dailyData, isCelsius) {
     <span>${dayName}</span>
     ${getWeatherIconHTML(match, "small")}
     <span>${match.text}</span>
-    <span>${Math.round(minTemp)}° / ${Math.round(maxTemp)}°</span>
+    <span>
+    <span class="temp-min">${Math.round(minTemp)}°</span>
+    /
+    <span class="temp-max">${Math.round(maxTemp)}°</span>
+</span>
 `;
 
 
