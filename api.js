@@ -4,6 +4,8 @@ const GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search";
 // URL за взимане на метеорологични данни
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 
+const AIR_QUALITY_URL = "https://air-quality-api.open-meteo.com/v1/air-quality";
+
 const weatherCache = {};
 const CACHE_TTL = 10 * 60 * 1000;
 
@@ -91,4 +93,19 @@ export async function getWeatherByCity(city) {
     };
 
     return result;
+}
+
+/**
+ * Взима UV индекс и качество на въздуха по координати
+ * @param {number} lat
+ * @param {number} lon
+ * @returns {Promise<object>}
+ */
+export async function getAirQualityData(lat, lon) {
+    const url =
+        `${AIR_QUALITY_URL}?latitude=${lat}&longitude=${lon}&current=european_aqi,uv_index&timezone=auto`;
+
+    const response = await fetch(url);
+
+    return await response.json();
 }

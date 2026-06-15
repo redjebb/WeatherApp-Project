@@ -3,6 +3,7 @@ import {
   getWeatherData,
   getCityNameFromCoords,
   getWeatherByCity,
+  getAirQualityData,
 } from "./api.js";
 
 // 2. Импортираме UI обекта и рендериращата функция от визуалния слой (ui.js)
@@ -15,6 +16,7 @@ let currentTempCelsius = null;
 let currentWindKmH = null;
 let lastWeatherData = null;
 let lastCityName = null;
+let lastAirQualityData = null;
 let isCelsius = true;
 let searchHistory = [];
 
@@ -68,6 +70,7 @@ async function handleSearch(forcedCityName = null) {
 
     const coords = result.coords;
     const weatherData = result.weatherData;
+    const airQualityData = await getAirQualityData(coords.lat, coords.lon);
 
     lastWeatherData = weatherData;
     lastCityName = coords.name;
@@ -75,7 +78,7 @@ async function handleSearch(forcedCityName = null) {
     currentTempCelsius = weatherData.current.temperature_2m;
     currentWindKmH = weatherData.current.wind_speed_10m;
 
-    updateUI(weatherData, coords.name, isCelsius);
+    updateUI(weatherData, coords.name, isCelsius, airQualityData);
     saveCityToHistory(coords.name);
 
     ui.loading.classList.add("hidden");
@@ -166,17 +169,19 @@ function requestUserLocation() {
       try {
         ui.loading.textContent = "Fetching local conditions...";
 
-        const [fetchedCityName, weatherData] = await Promise.all([
-          getCityNameFromCoords(lat, lon),
-          getWeatherData(lat, lon),
-        ]);
+        const [fetchedCityName, weatherData, airQualityData] = await Promise.all([
+    getCityNameFromCoords(lat, lon),
+    getWeatherData(lat, lon),
+    getAirQualityData(lat, lon),
+]);
 
         lastWeatherData = weatherData;
+        lastAirQualityData = airQualityData;
         lastCityName = fetchedCityName;
         currentTempCelsius = weatherData.current.temperature_2m;
         currentWindKmH = weatherData.current.wind_speed_10m;
 
-        updateUI(weatherData, fetchedCityName, isCelsius);
+        updateUI(weatherData, fetchedCityName, isCelsius, airQualityData);
         saveCityToHistory(fetchedCityName);
 
         ui.loading.classList.add("hidden");

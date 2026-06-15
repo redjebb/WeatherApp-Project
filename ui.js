@@ -20,6 +20,9 @@ export const ui = {
     humidity: document.getElementById("humidity"),
     windSpeed: document.getElementById("wind-speed"),
 
+    uvIndex: document.getElementById("uv-index"),
+airQuality: document.getElementById("air-quality"),
+
     error: document.getElementById("error-message"),
     loading: document.getElementById("loading-spinner")
 };
@@ -30,13 +33,31 @@ function formatDayName(dateString) {
     });
 }
 
+function getUVLabel(uvIndex) {
+    if (uvIndex < 3) return "Low";
+    if (uvIndex < 6) return "Moderate";
+    if (uvIndex < 8) return "High";
+    if (uvIndex < 11) return "Very High";
+    return "Extreme";
+}
+
+function getAQILabel(aqi) {
+    if (aqi <= 20) return "Good";
+    if (aqi <= 40) return "Fair";
+    if (aqi <= 60) return "Moderate";
+    if (aqi <= 80) return "Poor";
+    if (aqi <= 100) return "Very Poor";
+    return "Extremely Poor";
+}
+
 /**
  * Показва получените метеорологични данни в страницата
  * @param {object} data - Необработените данни от API-то
  * @param {string} cityName - Истинското име на града от геокодирането
  * @param {boolean} isCelsius - Текущото състояние на мерната единица (идва от състоянието в app.js)
+ * @param {object} airQualityData - Данни за качество на въздуха
  */
-export function updateUI(data, cityName, isCelsius) {
+export function updateUI(data, cityName, isCelsius, airQualityData = null) {
     const current = data.current;
 
     // Показване на името на града
@@ -61,6 +82,22 @@ export function updateUI(data, cityName, isCelsius) {
     ui.unitDisplay.textContent = tempUnit;
     ui.humidity.textContent = `${current.relative_humidity_2m}%`;
     ui.windSpeed.textContent = `${Math.round(displayWind)} ${windUnit}`;
+
+    if (airQualityData && airQualityData.current) {
+    const currentAir = airQualityData.current;
+
+    const uvValue = currentAir.uv_index;
+    const aqiValue = currentAir.european_aqi;
+
+    ui.uvIndex.textContent =
+        `${Math.round(uvValue)} (${getUVLabel(uvValue)})`;
+
+    ui.airQuality.textContent =
+        `${aqiValue} (${getAQILabel(aqiValue)})`;
+} else {
+    ui.uvIndex.textContent = "--";
+    ui.airQuality.textContent = "--";
+}
 
     // Търсене на описание и икона според weather кода от импортирания справочник
     const match = WEATHER_MAPPING[current.weather_code] || {
