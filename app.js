@@ -53,7 +53,16 @@ async function handleSearch(forcedCityName = null) {
     ? forcedCityName.trim()
     : ui.input.value.trim();
 
-  if (!cityName) return;
+  if (!cityName) {
+  ui.error.textContent = "Please enter a city name.";
+  ui.error.classList.remove("hidden");
+
+  ui.weatherCard.classList.add("hidden");
+  ui.forecastContainer.classList.add("hidden");
+  ui.hourlyContainer.classList.add("hidden");
+
+  return;
+}
 
   if (!forcedCityName) {
     ui.input.value = "";
@@ -89,6 +98,7 @@ async function handleSearch(forcedCityName = null) {
     console.error(error);
 
     ui.loading.classList.add("hidden");
+    ui.error.textContent = "City not found. Please try again.";
     ui.error.classList.remove("hidden");
     ui.weatherCard.classList.add("hidden");
     ui.forecastContainer.classList.add("hidden");

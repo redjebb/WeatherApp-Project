@@ -406,3 +406,159 @@ body {
         padding: 8px;
     }
 }
+
+.weather-icon-main {
+    margin: 12px 0;
+    height: 115px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.25));
+}
+
+.weather-icon-combo {
+    position: relative;
+    display: inline-block;
+}
+
+.weather-icon-combo.main {
+    width: 130px;
+    height: 105px;
+}
+
+.weather-icon-combo.main .fa-sun {
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    font-size: 5.4rem;
+    color: #ffcb05;
+}
+
+.weather-icon-combo.main .fa-cloud {
+    position: absolute;
+    right: 0;
+    bottom: 6px;
+
+    font-size: 4.5rem;
+    color: #ffffff;
+}
+
+.weather-icon-combo.small {
+    width: 32px;
+    height: 26px;
+}
+
+.weather-icon-combo.small .fa-sun {
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    font-size: 1.35rem;
+    color: #ffcb05;
+}
+
+.weather-icon-combo.small .fa-cloud {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+
+    font-size: 1.1rem;
+    color: #ffffff;
+}
+
+.weather-icon-single.main {
+    font-size: 5rem;
+}
+
+.weather-icon-single.small {
+    font-size: 1.35rem;
+}
+
+.weather-icon-thunder {
+    position: relative;
+    display: inline-block;
+}
+
+/* MAIN ICON */
+.weather-icon-thunder.main {
+    width: 130px;
+    height: 110px;
+}
+
+.thunder-cloud {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+
+    font-size: 5rem;
+    color: #f1f5f9;
+}
+
+.thunder-bolt {
+    position: absolute;
+    top: 35px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    font-size: 3.5rem;
+    color: #ffcb05;
+
+    z-index: 2;
+}
+
+.thunder-drop {
+    position: absolute;
+    top: 82px;
+
+    color: #38bdf8;
+    font-size: 1.4rem;
+}
+
+.drop-1 {
+    left: 28px;
+}
+
+.drop-2 {
+    left: 57px;
+}
+
+.drop-3 {
+    left: 86px;
+}
+
+/* SMALL VERSION */
+.weather-icon-thunder.small {
+    width: 34px;
+    height: 28px;
+}
+
+.weather-icon-thunder.small .thunder-cloud {
+    color: #f1f5f9;
+    font-size: 1.5rem;
+}
+
+.weather-icon-thunder.small .thunder-bolt {
+    font-size: 1rem;
+    top: 10px;
+}
+
+.weather-icon-thunder.small .thunder-drop {
+    font-size: 0.45rem;
+    top: 22px;
+}
+
+.weather-icon-thunder.small .drop-1 {
+    left: 7px;
+}
+
+.weather-icon-thunder.small .drop-2 {
+    left: 14px;
+}
+
+.weather-icon-thunder.small .drop-3 {
+    left: 21px;
+}

@@ -28,7 +28,7 @@ airQuality: document.getElementById("air-quality"),
 };
 
 function formatDayName(dateString) {
-    return new Date(dateString).toLocaleDateString("bg-BG", {
+    return new Date(dateString).toLocaleDateString("en-US", {
         weekday: "short"
     });
 }
@@ -48,6 +48,35 @@ function getAQILabel(aqi) {
     if (aqi <= 80) return "Poor";
     if (aqi <= 100) return "Very Poor";
     return "Extremely Poor";
+}
+
+function getWeatherIconHTML(match, size = "small") {
+    if (match.iconClass === "fa-cloud-sun") {
+        return `
+            <span class="weather-icon-combo ${size}">
+                <i class="fa-solid fa-sun"></i>
+                <i class="fa-solid fa-cloud"></i>
+            </span>
+        `;
+    }
+
+    if (match.iconClass === "fa-bolt") {
+    return `
+        <span class="weather-icon-thunder ${size}">
+            <i class="fa-solid fa-cloud thunder-cloud"></i>
+            <i class="fa-solid fa-bolt thunder-bolt"></i>
+            <i class="fa-solid fa-droplet thunder-drop drop-1"></i>
+            <i class="fa-solid fa-droplet thunder-drop drop-2"></i>
+            <i class="fa-solid fa-droplet thunder-drop drop-3"></i>
+        </span>
+    `;
+}
+
+    return `
+        <i class="fa-solid ${match.iconClass} weather-icon-single ${size}"
+           style="color: ${match.iconColor}">
+        </i>
+    `;
 }
 
 /**
@@ -107,9 +136,7 @@ export function updateUI(data, cityName, isCelsius, airQualityData = null) {
     };
 
     ui.description.textContent = match.text;
-    ui.icon.className = `fa-solid fa-5x ${match.iconClass}`;
-
-    ui.icon.style.color = match.iconColor;
+    ui.icon.innerHTML = getWeatherIconHTML(match, "main");
 
     renderForecast(data.daily, isCelsius);
     renderHourlyForecast(data.hourly, isCelsius);
@@ -142,12 +169,11 @@ function renderForecast(dailyData, isCelsius) {
 
         card.innerHTML = `
     <span>${dayName}</span>
-    <i class="fa-solid ${match.iconClass}"></i>
+    ${getWeatherIconHTML(match, "small")}
     <span>${match.text}</span>
     <span>${Math.round(minTemp)}° / ${Math.round(maxTemp)}°</span>
 `;
 
-        card.querySelector("i").style.color = match.iconColor;
 
         ui.forecastContainer.appendChild(card);
     }
@@ -194,11 +220,10 @@ function renderHourlyForecast(hourlyData, isCelsius) {
 
         card.innerHTML = `
             <span>${formatHour(hourData.time)}</span>
-            <i class="fa-solid ${match.iconClass}"></i>
+            ${getWeatherIconHTML(match, "small")}
             <span>${Math.round(displayTemp)}°</span>
         `;
 
-        card.querySelector("i").style.color = match.iconColor;
 
         ui.hourlyContainer.appendChild(card);
     });
