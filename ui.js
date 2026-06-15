@@ -8,6 +8,7 @@ export const ui = {
     unitToggle: document.getElementById("unit-toggle"),
     historyContainer: document.getElementById("history-container"),
     forecastContainer: document.getElementById("forecast-container"),
+    hourlyContainer: document.getElementById("hourly-container"),
 
     weatherCard: document.getElementById("weather-info"),
     location: document.getElementById("location"),
@@ -74,6 +75,7 @@ export function updateUI(data, cityName, isCelsius) {
     ui.icon.style.color = match.iconColor;
 
     renderForecast(data.daily, isCelsius);
+    renderHourlyForecast(data.hourly, isCelsius);
 }
 
 function renderForecast(dailyData, isCelsius) {
@@ -102,13 +104,65 @@ function renderForecast(dailyData, isCelsius) {
         card.className = "forecast-card";
 
         card.innerHTML = `
-            <span>${dayName}</span>
-            <i class="fa-solid ${match.iconClass}"></i>
-            <span>${Math.round(minTemp)}° / ${Math.round(maxTemp)}°</span>
-        `;
+    <span>${dayName}</span>
+    <i class="fa-solid ${match.iconClass}"></i>
+    <span>${match.text}</span>
+    <span>${Math.round(minTemp)}° / ${Math.round(maxTemp)}°</span>
+`;
 
         card.querySelector("i").style.color = match.iconColor;
 
         ui.forecastContainer.appendChild(card);
     }
+}
+
+function formatHour(timeString) {
+    return new Date(timeString).toLocaleTimeString("bg-BG", {
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+function renderHourlyForecast(hourlyData, isCelsius) {
+    ui.hourlyContainer.innerHTML = "";
+
+    const now = new Date();
+
+    const futureHours = hourlyData.time
+        .map((time, index) => {
+            return {
+                time,
+                temperature: hourlyData.temperature_2m[index],
+                weatherCode: hourlyData.weather_code[index]
+            };
+        })
+        .filter((hourData) => new Date(hourData.time) > now)
+        .slice(0, 8);
+
+    futureHours.forEach((hourData) => {
+        let displayTemp = hourData.temperature;
+
+        if (!isCelsius) {
+            displayTemp = (displayTemp * 9 / 5) + 32;
+        }
+
+        const match = WEATHER_MAPPING[hourData.weatherCode] || {
+            text: "Unknown",
+            iconClass: "fa-question",
+            iconColor: "#ffffff"
+        };
+
+        const card = document.createElement("div");
+        card.className = "hourly-card";
+
+        card.innerHTML = `
+            <span>${formatHour(hourData.time)}</span>
+            <i class="fa-solid ${match.iconClass}"></i>
+            <span>${Math.round(displayTemp)}°</span>
+        `;
+
+        card.querySelector("i").style.color = match.iconColor;
+
+        ui.hourlyContainer.appendChild(card);
+    });
 }

@@ -61,6 +61,7 @@ async function handleSearch(forcedCityName = null) {
     ui.error.classList.add("hidden");
     ui.weatherCard.classList.add("hidden");
     ui.forecastContainer.classList.add("hidden");
+    ui.hourlyContainer.classList.add("hidden");
     ui.loading.classList.remove("hidden");
 
     const result = await getWeatherByCity(cityName);
@@ -80,12 +81,15 @@ async function handleSearch(forcedCityName = null) {
     ui.loading.classList.add("hidden");
     ui.weatherCard.classList.remove("hidden");
     ui.forecastContainer.classList.remove("hidden");
+    ui.hourlyContainer.classList.remove("hidden");
   } catch (error) {
     console.error(error);
+
     ui.loading.classList.add("hidden");
     ui.error.classList.remove("hidden");
     ui.weatherCard.classList.add("hidden");
     ui.forecastContainer.classList.add("hidden");
+    ui.hourlyContainer.classList.add("hidden");
   }
 }
 
@@ -141,17 +145,20 @@ function saveCityToHistory(cityName) {
 function requestUserLocation() {
   // Проверяваме дали браузърът изобщо поддържа геолокация
   if (!navigator.geolocation) {
-    // Ако не поддържа, зареждаме Париж като резервен вариант (fallback)
     handleSearch("Paris");
     return;
   }
+
+  // Скриваме старите блокове, докато искаме достъп до локация
+  ui.weatherCard.classList.add("hidden");
+  ui.forecastContainer.classList.add("hidden");
+  ui.hourlyContainer.classList.add("hidden");
 
   // Сменяме текста при зареждане, за да знае потребителят какво се случва
   ui.loading.textContent = "Requesting your location access...";
   ui.loading.classList.remove("hidden");
 
   navigator.geolocation.getCurrentPosition(
-    // АКО ПОТРЕБИТЕЛЯТ ПОЗВОЛИ
     async (position) => {
       const lat = position.coords.latitude;
       const lon = position.coords.longitude;
@@ -164,7 +171,6 @@ function requestUserLocation() {
           getWeatherData(lat, lon),
         ]);
 
-        // 3. Записваме в глобалното състояние
         lastWeatherData = weatherData;
         lastCityName = fetchedCityName;
         currentTempCelsius = weatherData.current.temperature_2m;
@@ -176,17 +182,14 @@ function requestUserLocation() {
         ui.loading.classList.add("hidden");
         ui.weatherCard.classList.remove("hidden");
         ui.forecastContainer.classList.remove("hidden");
+        ui.hourlyContainer.classList.remove("hidden");
       } catch (error) {
         console.error("Error loading weather for coordinates:", error);
         handleSearch("Paris");
       }
     },
-    // АКО ПОТРЕБИТЕЛЯТ ОТКАЖЕ
-    (error) => {
-      console.warn(
-        "Location access denied by user. Falling back to default city.",
-      );
-      // Понеже е отказал, просто зареждаме града по подразбиране
+    () => {
+      console.warn("Location access denied by user. Falling back to default city.");
       handleSearch("Paris");
     },
   );

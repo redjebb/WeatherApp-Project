@@ -37,7 +37,7 @@ export async function getCoordinates(city) {
  */
 export async function getWeatherData(lat, lon) {
     const url =
-        `${FORECAST_URL}?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=6&timezone=auto`;
+        `${FORECAST_URL}?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weather_code&forecast_days=6&timezone=auto`;
 
     const response = await fetch(url);
 
@@ -51,8 +51,6 @@ export async function getWeatherData(lat, lon) {
  * @returns {Promise<string>} Име на града
  */
 export async function getCityNameFromCoords(lat, lon) {
-    // Използваме Open-Meteo Geocoding API, но този път търсим по координати
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&timezone=auto`;
     
     const reverseUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
     
