@@ -80,6 +80,7 @@ async function handleSearch(forcedCityName = null) {
     ui.forecastContainer.classList.add("hidden");
     ui.hourlyContainer.classList.add("hidden");
     ui.loading.classList.remove("hidden");
+    ui.weatherAlert.classList.add("hidden");
 
     const result = await getWeatherByCity(cityName);
 
@@ -107,6 +108,7 @@ async function handleSearch(forcedCityName = null) {
     ui.error.textContent = "City not found. Please try again.";
     ui.error.classList.remove("hidden");
     ui.weatherCard.classList.add("hidden");
+    ui.weatherAlert.classList.add("hidden");
     ui.forecastContainer.classList.add("hidden");
     ui.hourlyContainer.classList.add("hidden");
   }

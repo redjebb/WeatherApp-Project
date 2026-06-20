@@ -14,6 +14,7 @@ export const ui = {
     sunrise: document.getElementById("sunrise"),
     sunset: document.getElementById("sunset"),
     feelsLike: document.getElementById("feels-like"),
+    weatherAlert: document.getElementById("weather-alert"), 
 
     weatherCard: document.getElementById("weather-info"),
     location: document.getElementById("location"),
@@ -117,6 +118,37 @@ function getWeatherIconHTML(match, size = "small") {
     `;
 }
 
+function getWeatherAlert(current, airQualityData) {
+    const code = current.weather_code;
+
+    if (code === 95 || code === 96 || code === 99) {
+        return "⚠ Thunderstorm expected. Be careful outdoors.";
+    }
+
+    if (code === 65 || code === 82) {
+        return "⚠ Heavy rain expected. Avoid unnecessary travel.";
+    }
+
+    if (code === 75 || code === 86) {
+        return "⚠ Heavy snow expected. Roads may be slippery.";
+    }
+
+    if (airQualityData && airQualityData.current) {
+        const aqi = airQualityData.current.european_aqi;
+        const uv = airQualityData.current.uv_index;
+
+        if (aqi > 100) {
+            return "⚠ Air quality is extremely poor. Avoid outdoor activity.";
+        }
+
+        if (uv >= 8) {
+            return "⚠ UV index is high. Use sunscreen and avoid direct sun.";
+        }
+    }
+
+    return null;
+}
+
 /**
  * Показва получените метеорологични данни в страницата
  * @param {object} data - Необработените данни от API-то
@@ -136,7 +168,7 @@ export function updateUI(data, cityName, isCelsius, airQualityData = null) {
     let tempUnit = "°C";
     let windUnit = "km/h";
 
-    // Ако в момента е избран Фаренхайт, пресмятаме стойностите за екрана
+    // Ако в момента е избран Фаренхайт
     if (!isCelsius) {
         displayTemp = (current.temperature_2m * 9 / 5) + 32;
         displayWind = current.wind_speed_10m * 0.621371;
@@ -144,50 +176,53 @@ export function updateUI(data, cityName, isCelsius, airQualityData = null) {
         windUnit = "mph";
     }
 
-    // Обновяване на данните в DOM
+    // Обновяване на основните данни
     ui.temperature.textContent = Math.round(displayTemp);
     ui.unitDisplay.textContent = tempUnit;
     ui.humidity.textContent = `${current.relative_humidity_2m}%`;
     ui.windSpeed.textContent = `${Math.round(displayWind)} ${windUnit}`;
     ui.sunrise.textContent = formatTime(data.daily.sunrise[0]);
-ui.sunset.textContent = formatTime(data.daily.sunset[0]);
+    ui.sunset.textContent = formatTime(data.daily.sunset[0]);
 
-let feelsLikeTemp = current.apparent_temperature;
+    // Feels like температура
+    let feelsLikeTemp = current.apparent_temperature;
 
-if (!isCelsius) {
-    feelsLikeTemp = (feelsLikeTemp * 9 / 5) + 32;
-}
+    if (!isCelsius) {
+        feelsLikeTemp = (feelsLikeTemp * 9 / 5) + 32;
+    }
 
-ui.feelsLike.innerHTML = `Feels like <strong>${Math.round(feelsLikeTemp)}${tempUnit}</strong>`;
+    ui.feelsLike.innerHTML =
+        `Feels like <strong>${Math.round(feelsLikeTemp)}${tempUnit}</strong>`;
 
+    // UV индекс и качество на въздуха
     if (airQualityData && airQualityData.current) {
-    const currentAir = airQualityData.current;
+        const currentAir = airQualityData.current;
 
-    const uvValue = currentAir.uv_index;
-    const aqiValue = currentAir.european_aqi;
+        const uvValue = currentAir.uv_index;
+        const aqiValue = currentAir.european_aqi;
 
-    ui.uvIndex.textContent =
-        `${Math.round(uvValue)} (${getUVLabel(uvValue)})`;
+        ui.uvIndex.textContent =
+            `${Math.round(uvValue)} (${getUVLabel(uvValue)})`;
 
-    ui.airQuality.textContent =
-        `${aqiValue} (${getAQILabel(aqiValue)})`;
+        ui.airQuality.textContent =
+            `${aqiValue} (${getAQILabel(aqiValue)})`;
 
-    ui.uvIndex.style.color = getUVColor(uvValue);
-    ui.airQuality.style.color = getAQIColor(aqiValue);
+        ui.uvIndex.style.color = getUVColor(uvValue);
+        ui.airQuality.style.color = getAQIColor(aqiValue);
 
-    ui.airQualityTooltip.textContent = getAQIDescription(aqiValue);
-} else {
-    ui.uvIndex.textContent = "--";
-    ui.airQuality.textContent = "--";
+        ui.airQualityTooltip.textContent = getAQIDescription(aqiValue);
+    } else {
+        ui.uvIndex.textContent = "--";
+        ui.airQuality.textContent = "--";
 
-    ui.uvIndex.style.color = "";
-    ui.airQuality.style.color = "";
+        ui.uvIndex.style.color = "";
+        ui.airQuality.style.color = "";
 
-    ui.airQualityTooltip.textContent =
-        "Air quality shows how polluted the air is. Lower values mean cleaner air.";
-}
+        ui.airQualityTooltip.textContent =
+            "Air quality shows how polluted the air is. Lower values mean cleaner air.";
+    }
 
-    // Търсене на описание и икона според weather кода от импортирания справочник
+    // Описание и главна иконка
     const match = WEATHER_MAPPING[current.weather_code] || {
         text: "Unknown",
         iconClass: "fa-question",
@@ -197,6 +232,18 @@ ui.feelsLike.innerHTML = `Feels like <strong>${Math.round(feelsLikeTemp)}${tempU
     ui.description.textContent = match.text;
     ui.icon.innerHTML = getWeatherIconHTML(match, "main");
 
+    // Weather alert
+    const alertMessage = getWeatherAlert(current, airQualityData);
+
+    if (alertMessage) {
+        ui.weatherAlert.textContent = alertMessage;
+        ui.weatherAlert.classList.remove("hidden");
+    } else {
+        ui.weatherAlert.textContent = "";
+        ui.weatherAlert.classList.add("hidden");
+    }
+
+    // Прогнози
     renderForecast(data.daily, isCelsius);
     renderHourlyForecast(data.hourly, isCelsius);
 }
