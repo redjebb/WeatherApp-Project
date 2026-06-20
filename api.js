@@ -41,7 +41,7 @@ export async function getCoordinates(city) {
  */
 export async function getWeatherData(lat, lon) {
     const url =
-        `${FORECAST_URL}?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weather_code&forecast_days=6&timezone=auto`;
+    `${FORECAST_URL}?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&hourly=temperature_2m,weather_code&forecast_days=6&timezone=auto`;
 
     const response = await fetch(url);
 

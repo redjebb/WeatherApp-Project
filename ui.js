@@ -11,6 +11,9 @@ export const ui = {
     forecastContainer: document.getElementById("forecast-container"),
     hourlyContainer: document.getElementById("hourly-container"),
 
+    sunrise: document.getElementById("sunrise"),
+sunset: document.getElementById("sunset"),
+
     weatherCard: document.getElementById("weather-info"),
     location: document.getElementById("location"),
     temperature: document.getElementById("temperature"),
@@ -32,6 +35,13 @@ airQualityTooltip: document.getElementById("air-quality-tooltip"),
 function formatDayName(dateString) {
     return new Date(dateString).toLocaleDateString("en-US", {
         weekday: "short"
+    });
+}
+
+function formatTime(timeString) {
+    return new Date(timeString).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit"
     });
 }
 
@@ -138,6 +148,8 @@ export function updateUI(data, cityName, isCelsius, airQualityData = null) {
     ui.unitDisplay.textContent = tempUnit;
     ui.humidity.textContent = `${current.relative_humidity_2m}%`;
     ui.windSpeed.textContent = `${Math.round(displayWind)} ${windUnit}`;
+    ui.sunrise.textContent = formatTime(data.daily.sunrise[0]);
+ui.sunset.textContent = formatTime(data.daily.sunset[0]);
 
     if (airQualityData && airQualityData.current) {
     const currentAir = airQualityData.current;
