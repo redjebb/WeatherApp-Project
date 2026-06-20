@@ -88,7 +88,7 @@ function getWeatherIconHTML(match, size = "small") {
         `;
     }
 
-    if (match.iconClass === "fa-bolt") {
+    if (match.iconClass === "fa-bolt" || match.iconClass === "fa-cloud-bolt") {
     return `
         <span class="weather-icon-thunder ${size}">
             <i class="fa-solid fa-cloud thunder-cloud"></i>
@@ -99,7 +99,6 @@ function getWeatherIconHTML(match, size = "small") {
         </span>
     `;
 }
-
     return `
         <i class="fa-solid ${match.iconClass} weather-icon-single ${size}"
            style="color: ${match.iconColor}">
