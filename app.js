@@ -1,4 +1,8 @@
-// 1. Импортираме нужните функции от мрежовия слой (api.js)
+// ==========================================================================
+// MODULE IMPORTS
+// ==========================================================================
+
+// API functions used for weather, location, air quality, and city suggestions.
 import {
   getWeatherData,
   getCityNameFromCoords,
@@ -7,56 +11,68 @@ import {
   getCitySuggestions,
 } from "./api.js";
 
-// 2. Импортираме UI обекта и рендериращата функция от визуалния слой (ui.js)
+// UI references and rendering function.
 import { ui, updateUI } from "./ui.js";
 
 // ==========================================================================
-// ГЛОБАЛНО СЪСТОЯНИЕ НА ПРИЛОЖЕНИЕТО (STATE)
+// APPLICATION STATE
 // ==========================================================================
-let currentTempCelsius = null;
-let currentWindKmH = null;
+
+// Stores the last loaded weather data so the UI can be re-rendered without refetching.
 let lastWeatherData = null;
+
+// Stores the last displayed city name.
 let lastCityName = null;
+
+// Stores the last loaded air quality data so unit toggling keeps UV/AQI visible.
 let lastAirQualityData = null;
+
+// Tracks the active temperature unit.
+// true = Celsius, false = Fahrenheit.
 let isCelsius = true;
+
+// Stores the city search history loaded from localStorage.
 let searchHistory = [];
 
+// Stores the debounce timer used for city search suggestions.
+let suggestionsTimeout = null;
+
 // ==========================================================================
-// СЛУШАТЕЛИ НА СЪБИТИЯ (EVENT LISTENERS)
+// EVENT LISTENERS
 // ==========================================================================
 
-// Слушател за изпращане на формата
+// Handles form submission and prevents the browser from refreshing the page.
 ui.form.addEventListener("submit", (event) => {
   event.preventDefault();
   handleSearch();
 });
 
+// Clears search history from memory, localStorage, and the UI.
 ui.clearHistoryBtn.addEventListener("click", () => {
   searchHistory = [];
   localStorage.removeItem("weatherSearchHistory");
   renderHistoryUI();
 });
 
-// Слушател за превключване между °C и °F
+// Toggles between Celsius and Fahrenheit without making a new API request.
 ui.unitToggle.addEventListener("click", () => {
   isCelsius = !isCelsius;
   ui.unitToggle.textContent = isCelsius ? "°F" : "°C";
 
   if (lastWeatherData && lastCityName) {
-    updateUI(lastWeatherData, lastCityName, isCelsius);
+    updateUI(lastWeatherData, lastCityName, isCelsius, lastAirQualityData);
   }
 });
 
-let suggestionsTimeout = null;
-
+// Fetches city suggestions while the user types.
+// A short debounce prevents sending a request on every single keystroke.
 ui.input.addEventListener("input", () => {
   clearTimeout(suggestionsTimeout);
 
   const query = ui.input.value.trim();
 
   if (query.length < 2) {
-    ui.suggestionsContainer.classList.add("hidden");
-    ui.suggestionsContainer.innerHTML = "";
+    clearSuggestions();
     return;
   }
 
@@ -66,6 +82,23 @@ ui.input.addEventListener("input", () => {
   }, 300);
 });
 
+// ==========================================================================
+// SEARCH SUGGESTIONS
+// ==========================================================================
+
+/**
+ * Clears the suggestions list from the UI.
+ */
+function clearSuggestions() {
+  ui.suggestionsContainer.classList.add("hidden");
+  ui.suggestionsContainer.innerHTML = "";
+}
+
+/**
+ * Renders clickable city suggestion buttons.
+ *
+ * @param {Array<object>} suggestions - Suggested city objects returned by the API.
+ */
 function renderSuggestions(suggestions) {
   ui.suggestionsContainer.innerHTML = "";
 
@@ -76,14 +109,14 @@ function renderSuggestions(suggestions) {
 
   suggestions.forEach((city) => {
     const btn = document.createElement("button");
+
     btn.type = "button";
     btn.className = "suggestion-btn";
     btn.textContent = `${city.name}, ${city.country}`;
 
     btn.addEventListener("click", () => {
       ui.input.value = "";
-      ui.suggestionsContainer.classList.add("hidden");
-      ui.suggestionsContainer.innerHTML = "";
+      clearSuggestions();
       handleSearch(city.name);
     });
 
@@ -94,12 +127,19 @@ function renderSuggestions(suggestions) {
 }
 
 // ==========================================================================
-// ОСНОВНА УПРАВЛЯВАЩА ЛОГИКА
+// MAIN SEARCH FLOW
 // ==========================================================================
 
 /**
- * Основен контролер, който координира търсенето на град
- * @param {string|null} forcedCityName
+ * Handles searching for a city and updating the whole weather dashboard.
+ *
+ * The function can be triggered by:
+ * - the search form
+ * - a history button
+ * - a city suggestion
+ * - fallback logic
+ *
+ * @param {string|null} forcedCityName - Optional city name passed programmatically.
  */
 async function handleSearch(forcedCityName = null) {
   const cityName = forcedCityName
@@ -107,29 +147,16 @@ async function handleSearch(forcedCityName = null) {
     : ui.input.value.trim();
 
   if (!cityName) {
-  ui.error.textContent = "Please enter a city name.";
-  ui.error.classList.remove("hidden");
-
-  ui.weatherCard.classList.add("hidden");
-  ui.forecastContainer.classList.add("hidden");
-  ui.hourlyContainer.classList.add("hidden");
-
-  return;
-}
+    showInputError();
+    return;
+  }
 
   if (!forcedCityName) {
     ui.input.value = "";
   }
 
   try {
-    ui.error.classList.add("hidden");
-    ui.weatherCard.classList.add("hidden");
-    ui.forecastContainer.classList.add("hidden");
-    ui.hourlyContainer.classList.add("hidden");
-    ui.loading.classList.remove("hidden");
-    ui.weatherAlert.classList.add("hidden");
-    ui.suggestionsContainer.classList.add("hidden");
-    ui.suggestionsContainer.innerHTML = "";
+    showLoadingState();
 
     const result = await getWeatherByCity(cityName);
 
@@ -139,40 +166,92 @@ async function handleSearch(forcedCityName = null) {
 
     lastWeatherData = weatherData;
     lastCityName = coords.name;
-
-    currentTempCelsius = weatherData.current.temperature_2m;
-    currentWindKmH = weatherData.current.wind_speed_10m;
+    lastAirQualityData = airQualityData;
 
     updateUI(weatherData, coords.name, isCelsius, airQualityData);
     saveCityToHistory(coords.name);
 
-    ui.loading.classList.add("hidden");
-    ui.weatherCard.classList.remove("hidden");
-    ui.forecastContainer.classList.remove("hidden");
-    ui.hourlyContainer.classList.remove("hidden");
+    showWeatherState();
   } catch (error) {
     console.error(error);
-
-    ui.loading.classList.add("hidden");
-    ui.error.textContent = "City not found. Please try again.";
-    ui.error.classList.remove("hidden");
-    ui.weatherCard.classList.add("hidden");
-    ui.weatherAlert.classList.add("hidden");
-    ui.forecastContainer.classList.add("hidden");
-    ui.hourlyContainer.classList.add("hidden");
+    showSearchError();
   }
 }
 
 // ==========================================================================
-// ЛОКАЛНА ИСТОРИЯ (LOCALSTORAGE)
+// UI STATE HELPERS
 // ==========================================================================
 
+/**
+ * Shows an error when the user submits an empty search field.
+ */
+function showInputError() {
+  ui.error.textContent = "Please enter a city name.";
+  ui.error.classList.remove("hidden");
+
+  ui.weatherCard.classList.add("hidden");
+  ui.weatherAlert.classList.add("hidden");
+  ui.forecastContainer.classList.add("hidden");
+  ui.hourlyContainer.classList.add("hidden");
+}
+
+/**
+ * Shows the loading spinner and hides old weather results.
+ */
+function showLoadingState() {
+  ui.error.classList.add("hidden");
+  ui.weatherCard.classList.add("hidden");
+  ui.weatherAlert.classList.add("hidden");
+  ui.forecastContainer.classList.add("hidden");
+  ui.hourlyContainer.classList.add("hidden");
+
+  clearSuggestions();
+
+  ui.loading.textContent = "Fetching local conditions...";
+  ui.loading.classList.remove("hidden");
+}
+
+/**
+ * Shows the fully rendered weather dashboard after successful data loading.
+ */
+function showWeatherState() {
+  ui.loading.classList.add("hidden");
+  ui.weatherCard.classList.remove("hidden");
+  ui.forecastContainer.classList.remove("hidden");
+  ui.hourlyContainer.classList.remove("hidden");
+}
+
+/**
+ * Shows a city search error and hides old results.
+ */
+function showSearchError() {
+  ui.loading.classList.add("hidden");
+
+  ui.error.textContent = "City not found. Please try again.";
+  ui.error.classList.remove("hidden");
+
+  ui.weatherCard.classList.add("hidden");
+  ui.weatherAlert.classList.add("hidden");
+  ui.forecastContainer.classList.add("hidden");
+  ui.hourlyContainer.classList.add("hidden");
+}
+
+// ==========================================================================
+// SEARCH HISTORY
+// ==========================================================================
+
+/**
+ * Loads the saved search history from localStorage.
+ */
 function initHistory() {
   const storedHistory = localStorage.getItem("weatherSearchHistory");
   searchHistory = storedHistory ? JSON.parse(storedHistory) : [];
   renderHistoryUI();
 }
 
+/**
+ * Renders the search history buttons and controls the clear-history button.
+ */
 function renderHistoryUI() {
   ui.historyContainer.innerHTML = "";
 
@@ -185,6 +264,7 @@ function renderHistoryUI() {
 
   searchHistory.forEach((city) => {
     const btn = document.createElement("button");
+
     btn.textContent = city;
     btn.className = "history-btn";
     btn.type = "button";
@@ -197,6 +277,14 @@ function renderHistoryUI() {
   });
 }
 
+/**
+ * Saves a city to search history without duplicates.
+ *
+ * The newest city is moved to the front of the list.
+ * Only the latest five cities are kept.
+ *
+ * @param {string} cityName - City name to save.
+ */
 function saveCityToHistory(cityName) {
   const existingIndex = searchHistory.findIndex(
     (city) => city.toLowerCase() === cityName.toLowerCase(),
@@ -216,22 +304,26 @@ function saveCityToHistory(cityName) {
   renderHistoryUI();
 }
 
+// ==========================================================================
+// GEOLOCATION
+// ==========================================================================
+
 /**
- * Опитва да вземе текущата локация на потребителя чрез браузъра
+ * Requests the user's current browser location and loads local weather.
+ *
+ * If geolocation is unavailable or denied, the app falls back to Paris.
  */
 function requestUserLocation() {
-  // Проверяваме дали браузърът изобщо поддържа геолокация
   if (!navigator.geolocation) {
     handleSearch("Paris");
     return;
   }
 
-  // Скриваме старите блокове, докато искаме достъп до локация
   ui.weatherCard.classList.add("hidden");
+  ui.weatherAlert.classList.add("hidden");
   ui.forecastContainer.classList.add("hidden");
   ui.hourlyContainer.classList.add("hidden");
 
-  // Сменяме текста при зареждане, за да знае потребителят какво се случва
   ui.loading.textContent = "Requesting your location access...";
   ui.loading.classList.remove("hidden");
 
@@ -243,25 +335,21 @@ function requestUserLocation() {
       try {
         ui.loading.textContent = "Fetching local conditions...";
 
-        const [fetchedCityName, weatherData, airQualityData] = await Promise.all([
-    getCityNameFromCoords(lat, lon),
-    getWeatherData(lat, lon),
-    getAirQualityData(lat, lon),
-]);
+        const [fetchedCityName, weatherData, airQualityData] =
+          await Promise.all([
+            getCityNameFromCoords(lat, lon),
+            getWeatherData(lat, lon),
+            getAirQualityData(lat, lon),
+          ]);
 
         lastWeatherData = weatherData;
-        lastAirQualityData = airQualityData;
         lastCityName = fetchedCityName;
-        currentTempCelsius = weatherData.current.temperature_2m;
-        currentWindKmH = weatherData.current.wind_speed_10m;
+        lastAirQualityData = airQualityData;
 
         updateUI(weatherData, fetchedCityName, isCelsius, airQualityData);
         saveCityToHistory(fetchedCityName);
 
-        ui.loading.classList.add("hidden");
-        ui.weatherCard.classList.remove("hidden");
-        ui.forecastContainer.classList.remove("hidden");
-        ui.hourlyContainer.classList.remove("hidden");
+        showWeatherState();
       } catch (error) {
         console.error("Error loading weather for coordinates:", error);
         handleSearch("Paris");
@@ -274,8 +362,12 @@ function requestUserLocation() {
   );
 }
 
-// Стартиране на първоначалното зареждане
+// ==========================================================================
+// APPLICATION STARTUP
+// ==========================================================================
+
+// Load saved search history first.
 initHistory();
 
-// Задействаме геолокацията веднага след като историята се зареди в паметта
+// Then request the user's location and load local weather.
 requestUserLocation();

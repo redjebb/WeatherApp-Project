@@ -2,26 +2,26 @@
 <html lang="en">
 
 <head>
-    <!-- Основни настройки на страницата -->
+    <!-- Page metadata -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Заглавие на страницата -->
+    <!-- Page title -->
     <title>Weather App</title>
 
-    <!-- Font Awesome библиотека за иконите -->
+    <!-- Icon library -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Външен CSS файл -->
+    <!-- Main stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <!-- Основен контейнер на приложението -->
+    <!-- Main application wrapper -->
     <div class="weather-container">
 
-        <!-- Поле за търсене и бутони -->
+        <!-- Search controls -->
         <form id="search-form" class="search-box">
             <input type="text" id="city-input" placeholder="Enter city name..." autocomplete="off">
 
@@ -34,29 +34,33 @@
             </button>
         </form>
 
+        <!-- Search suggestions -->
         <div id="suggestions-container" class="suggestions-list hidden"></div>
 
+        <!-- Search history -->
         <div id="history-container" class="history-list"></div>
 
         <button type="button" id="clear-history-btn" class="clear-history-btn hidden">
-    Clear History
-</button>
+            Clear History
+        </button>
 
-        <!-- Съобщение при грешка -->
+        <!-- Error message -->
         <p id="error-message" class="hidden">
             City not found. Please try again.
         </p>
 
-        <!-- Съобщение при зареждане -->
+        <!-- Loading message -->
         <p id="loading-spinner" class="hidden">
             <i class="fa-solid fa-spinner fa-spin"></i> Fetching local conditions...
         </p>
 
+        <!-- Weather warning message -->
         <div id="weather-alert" class="weather-alert hidden"></div>
 
-        <!-- Основна секция с информация за времето -->
+        <!-- Current weather section -->
         <main id="weather-info" class="weather-info">
 
+            <!-- Main weather summary -->
             <div class="main-info">
 
                 <h1 id="location">--</h1>
@@ -71,11 +75,12 @@
                 <p id="description">Search for a city</p>
 
                 <p id="feels-like" class="feels-like">
-    Feels like <strong>--°C</strong>
-</p>
+                    Feels like <strong>--°C</strong>
+                </p>
 
             </div>
 
+            <!-- Current weather detail cards -->
             <div class="details-grid">
 
                 <div class="detail-card">
@@ -94,28 +99,30 @@
                 </div>
 
                 <div class="detail-card">
-    <span class="label">Sunrise</span>
-    <span id="sunrise">--</span>
-</div>
+                    <span class="label">Sunrise</span>
+                    <span id="sunrise">--</span>
+                </div>
 
-<div class="detail-card">
-    <span class="label">Sunset</span>
-    <span id="sunset">--</span>
-</div>
+                <div class="detail-card">
+                    <span class="label">Sunset</span>
+                    <span id="sunset">--</span>
+                </div>
 
                 <div class="detail-card tooltip-card">
-    <span class="label">Air Quality</span>
-    <span id="air-quality">--</span>
-    <span id="air-quality-tooltip" class="tooltip-text">
-        Air quality shows how polluted the air is. Lower values mean cleaner air.
-    </span>
-</div>
+                    <span class="label">Air Quality</span>
+                    <span id="air-quality">--</span>
+                    <span id="air-quality-tooltip" class="tooltip-text">
+                        Air quality shows how polluted the air is. Lower values mean cleaner air.
+                    </span>
+                </div>
 
             </div>
 
         </main>
 
+        <!-- Forecast sections -->
         <div class="forecast-layout">
+
             <section class="forecast-section">
                 <h2>Hourly Forecast</h2>
                 <section id="hourly-container" class="hourly-grid hidden"></section>
@@ -125,9 +132,13 @@
                 <h2>5-Day Forecast</h2>
                 <section id="forecast-container" class="forecast-grid hidden"></section>
             </section>
+
         </div>
 
-        <script type="module" src="app.js"></script>
+    </div>
+
+    <!-- Main JavaScript module -->
+    <script type="module" src="app.js"></script>
 
 </body>
 
