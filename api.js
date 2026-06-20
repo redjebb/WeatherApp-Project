@@ -97,6 +97,31 @@ export async function getWeatherByCity(city) {
     return result;
 }
 
+export async function getCitySuggestions(query) {
+    if (!query.trim()) {
+        return [];
+    }
+
+    const url =
+        `${GEOCODING_URL}?name=${encodeURIComponent(query)}&count=5&language=en&format=json`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (!data.results) {
+        return [];
+    }
+
+    return data.results.map((city) => {
+        return {
+            name: city.name,
+            country: city.country,
+            lat: city.latitude,
+            lon: city.longitude
+        };
+    });
+}
+
 /**
  * Взима UV индекс и качество на въздуха по координати
  * @param {number} lat

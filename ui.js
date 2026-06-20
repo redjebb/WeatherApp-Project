@@ -14,7 +14,8 @@ export const ui = {
     sunrise: document.getElementById("sunrise"),
     sunset: document.getElementById("sunset"),
     feelsLike: document.getElementById("feels-like"),
-    weatherAlert: document.getElementById("weather-alert"), 
+    weatherAlert: document.getElementById("weather-alert"),
+    suggestionsContainer: document.getElementById("suggestions-container"),
 
     weatherCard: document.getElementById("weather-info"),
     location: document.getElementById("location"),

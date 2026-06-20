@@ -4,6 +4,7 @@ import {
   getCityNameFromCoords,
   getWeatherByCity,
   getAirQualityData,
+  getCitySuggestions,
 } from "./api.js";
 
 // 2. Импортираме UI обекта и рендериращата функция от визуалния слой (ui.js)
@@ -46,6 +47,52 @@ ui.unitToggle.addEventListener("click", () => {
   }
 });
 
+let suggestionsTimeout = null;
+
+ui.input.addEventListener("input", () => {
+  clearTimeout(suggestionsTimeout);
+
+  const query = ui.input.value.trim();
+
+  if (query.length < 2) {
+    ui.suggestionsContainer.classList.add("hidden");
+    ui.suggestionsContainer.innerHTML = "";
+    return;
+  }
+
+  suggestionsTimeout = setTimeout(async () => {
+    const suggestions = await getCitySuggestions(query);
+    renderSuggestions(suggestions);
+  }, 300);
+});
+
+function renderSuggestions(suggestions) {
+  ui.suggestionsContainer.innerHTML = "";
+
+  if (suggestions.length === 0) {
+    ui.suggestionsContainer.classList.add("hidden");
+    return;
+  }
+
+  suggestions.forEach((city) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "suggestion-btn";
+    btn.textContent = `${city.name}, ${city.country}`;
+
+    btn.addEventListener("click", () => {
+      ui.input.value = "";
+      ui.suggestionsContainer.classList.add("hidden");
+      ui.suggestionsContainer.innerHTML = "";
+      handleSearch(city.name);
+    });
+
+    ui.suggestionsContainer.appendChild(btn);
+  });
+
+  ui.suggestionsContainer.classList.remove("hidden");
+}
+
 // ==========================================================================
 // ОСНОВНА УПРАВЛЯВАЩА ЛОГИКА
 // ==========================================================================
@@ -81,6 +128,8 @@ async function handleSearch(forcedCityName = null) {
     ui.hourlyContainer.classList.add("hidden");
     ui.loading.classList.remove("hidden");
     ui.weatherAlert.classList.add("hidden");
+    ui.suggestionsContainer.classList.add("hidden");
+    ui.suggestionsContainer.innerHTML = "";
 
     const result = await getWeatherByCity(cityName);
 

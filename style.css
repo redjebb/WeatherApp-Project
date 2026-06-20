@@ -256,6 +256,35 @@ body {
     text-align: center;
 }
 
+.suggestions-list {
+    max-width: 480px;
+    margin: -8px auto 14px auto;
+
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.suggestion-btn {
+    width: 100%;
+    padding: 9px 12px;
+
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.1);
+
+    color: var(--text-main);
+    text-align: left;
+    font-size: 0.85rem;
+    cursor: pointer;
+
+    transition: all var(--transition-speed) ease;
+}
+
+.suggestion-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
 .details-grid {
     width: 100%;
     max-width: 520px;
