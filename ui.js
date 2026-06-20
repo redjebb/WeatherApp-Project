@@ -7,6 +7,7 @@ export const ui = {
     input: document.getElementById("city-input"),
     unitToggle: document.getElementById("unit-toggle"),
     historyContainer: document.getElementById("history-container"),
+    clearHistoryBtn: document.getElementById("clear-history-btn"),
     forecastContainer: document.getElementById("forecast-container"),
     hourlyContainer: document.getElementById("hourly-container"),
 

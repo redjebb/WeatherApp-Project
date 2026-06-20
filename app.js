@@ -30,6 +30,12 @@ ui.form.addEventListener("submit", (event) => {
   handleSearch();
 });
 
+ui.clearHistoryBtn.addEventListener("click", () => {
+  searchHistory = [];
+  localStorage.removeItem("weatherSearchHistory");
+  renderHistoryUI();
+});
+
 // Слушател за превключване между °C и °F
 ui.unitToggle.addEventListener("click", () => {
   isCelsius = !isCelsius;
@@ -118,6 +124,13 @@ function initHistory() {
 
 function renderHistoryUI() {
   ui.historyContainer.innerHTML = "";
+
+  if (searchHistory.length === 0) {
+    ui.clearHistoryBtn.classList.add("hidden");
+    return;
+  }
+
+  ui.clearHistoryBtn.classList.remove("hidden");
 
   searchHistory.forEach((city) => {
     const btn = document.createElement("button");
