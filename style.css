@@ -230,6 +230,17 @@ body {
     font-weight: 400;
 }
 
+.feels-like {
+    margin-top: 8px;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.feels-like strong {
+    color: var(--text-main);
+    font-weight: 700;
+}
+
 .details-grid {
     width: 100%;
     max-width: 520px;

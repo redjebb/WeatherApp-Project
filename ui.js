@@ -12,7 +12,8 @@ export const ui = {
     hourlyContainer: document.getElementById("hourly-container"),
 
     sunrise: document.getElementById("sunrise"),
-sunset: document.getElementById("sunset"),
+    sunset: document.getElementById("sunset"),
+    feelsLike: document.getElementById("feels-like"),
 
     weatherCard: document.getElementById("weather-info"),
     location: document.getElementById("location"),
@@ -150,6 +151,14 @@ export function updateUI(data, cityName, isCelsius, airQualityData = null) {
     ui.windSpeed.textContent = `${Math.round(displayWind)} ${windUnit}`;
     ui.sunrise.textContent = formatTime(data.daily.sunrise[0]);
 ui.sunset.textContent = formatTime(data.daily.sunset[0]);
+
+let feelsLikeTemp = current.apparent_temperature;
+
+if (!isCelsius) {
+    feelsLikeTemp = (feelsLikeTemp * 9 / 5) + 32;
+}
+
+ui.feelsLike.innerHTML = `Feels like <strong>${Math.round(feelsLikeTemp)}${tempUnit}</strong>`;
 
     if (airQualityData && airQualityData.current) {
     const currentAir = airQualityData.current;
