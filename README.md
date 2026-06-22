@@ -188,6 +188,11 @@ The browser provides latitude and longitude coordinates, and this API converts t
 
 ---
 
+## How to Start The App
+1. Open the link in browser: https://weather-app-redzheb.netlify.app
+
+---
+
 ## How to Run Locally
 
 1. Download or clone the repository.
